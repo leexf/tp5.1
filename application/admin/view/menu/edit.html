@@ -1,0 +1,111 @@
+
+<style>
+    .td1{font-weight:bold;width:120px;padding:5px;text-align:right}
+    .my-tr{border-bottom:1px solid #eae7ef;width:100%;}
+</style>
+
+<div  >
+    <form action="/{$Think.config.HT_FILE_NAME}/menu/save_edit/table/menu" method="post" id="menu_edit" >
+        <input type="hidden" name="id" value="{$id}">
+        <table style="border-collapse:collapse;width:100%;height:95%">
+            <tr class="my-tr">
+                <td class="td1" >
+                    上级菜单：
+                </td>
+                <td style="padding:5px">
+                    <select class="easyui-combotree" name="pid" id="pid" style="width:153px;"
+                            panelHeight="180" panelWidth="200" data-options="url:'/{$Think.config.HT_FILE_NAME}/common/menu_combo',
+                    	method:'get',valueField:'id',textField:'text',value:'{$pid}'"></select>
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    菜单名称：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="catename" id="catename" value="{$catename}"  />
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    菜单地址：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="alink" id="alink" value="{$alink}"  />
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    图标：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="icon" id="icon" value="{$icon}" />
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    排序：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-numberspinner"  name="sort" id="sort" value="{$sort}" />
+                </td>
+            </tr>
+        </table>
+        <div style="position:absolute; right:0px; bottom:0px;margin-top:300px; width:170px; height:50px; ">
+            <input class="easyui-linkbutton"   value="保存" type="submit"  style="height:30px;width:70px;float:left;margin-right:15px"/>
+            <input class="easyui-linkbutton"   value="取消"  style="height:30px;width:50px;float:left" id="quxiao" onclick="$('#w').window('close')" />
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $('#menu_edit').form({
+        onSubmit:function(){
+            var pid=$('#pid').combotree('getValue');
+            var alink=$('#alink').textbox('getValue');
+            var catename=$('#catename').textbox('getValue');
+
+            if(pid==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请选择上级菜单</font>'
+                });
+                return false;
+            }
+            if(catename==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入菜单名称</font>'
+                });
+
+                return false;
+            }
+            if(alink==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入菜单地址</font>'
+                });
+
+                return false;
+            }
+
+        },
+        success:function(result){
+            if(result=='ok'){
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:'<font color="green">编辑成功！</font>'
+                });
+                $('#w').window('close', true);
+                $('#{$tb}').treegrid('reload');
+            }else{
+                console.log(result);
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:result
+                });
+            }
+        }
+    });
+
+
+</script>

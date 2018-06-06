@@ -1,0 +1,105 @@
+<style>
+    .td1{font-weight:bold;padding:5px;height:25px;border-right:1px solid #eae7ef;border-bottom:1px solid #eae7ef;}
+    .td2{width:150px;padding:5px}
+</style>
+<SCRIPT language=JavaScript>
+    function CheckAll(form)
+    {
+        for (var i=0;i<form.elements.length;i++)
+        {
+            var e = form.elements[i];
+            if (e.name != 'chkall' )
+                e.checked = form.chkall.checked;
+        }
+    }
+    //-->
+</SCRIPT>
+<div >
+    <form action="/{$Think.config.HT_FILE_NAME}/member_role/save_set_auth" method="post" id="ff">
+        <input type="hidden" name="id" value="{$id}">
+        <div >
+            <table  width="100%">
+                <thead>
+                <tr>
+                    <th width="30" height="30"></th>
+                    <th><input onclick=CheckAll(this.form) type=checkbox value=on name="chkall" /> 全选</th>
+                    <th>权限</th>
+                </tr>
+                </thead>
+                <tbody>
+                {foreach $topauth as $k=>$v}
+                <tr>
+                    <td height=25></td>
+                    <td class="td1" >
+                        <input type="checkbox" name="rules[]" id="ckbox{$v.id}" {php} if(in_array($v['id'],$auth)){ echo "checked=\"checked\""; }{/php} value="{$v.id}" />
+                        <label for="ckbox{$v.id}">
+                            {$v.title}
+                        </label>
+                    </td>
+                    <td class="td1">
+                        <table width="100%">
+                            {php} $list1 = db('auth_rule')->where('level=1 and status=0 and pid='.$v['id'])->order('sort','asc')->select();{/php}
+                            {foreach $list1 as $k1=>$v1}
+                            <tr>
+                                <td class="td1" height=30 width=200>
+                                    <input type="checkbox" name="rules[]" id="ckbox{$v1.id}" {php} if(in_array($v1['id'],$auth)){ echo "checked=\"checked\"";}{/php} value="{$v1.id}">
+                                    <label for="ckbox{$v1.id}">
+                                        {$v1.title}
+                                    </label>
+
+                                </td>
+                                <td class="td1" height=30 width=200>
+                                    <table width="100%">
+                                        {php} $list2 = db('auth_rule')->where('level=2 and status=0 and pid='.$v1['id'])->order('sort','asc')->select();{/php}
+                                        {foreach $list2 as $k2=>$v2}
+                                        <tr>
+                                            <td height=30 width=200>
+                                                <input type="checkbox" name="rules[]" id="ckbox{$v2.id}" {php} if(in_array($v2['id'],$auth)){ echo "checked=\"checked\"";}{/php} value="{$v2.id}">
+                                                <label for="ckbox{$v2.id}">
+                                                    {$v2.title}
+                                                </label>
+
+                                            </td>
+                                        </tr>
+                                        {/foreach}
+                                    </table>
+                                </td>
+                            </tr>
+                            {/foreach}
+                        </table>
+                    </td>
+                </tr>
+                {/foreach}
+                </tbody>
+            </table>
+        </div>
+        <div style="float:right;margin-top:20px; width:170px; height:50px; ">
+            <input class="easyui-linkbutton"   value="保存" type="submit"  style="height:30px;width:70px;float:left;margin-right:15px"/>
+            <input class="easyui-linkbutton"   value="取消"  style="height:30px;width:50px;float:left" id="quxiao" onclick="$('#w').window('close')" />
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    $('#ff').form({
+        onSubmit:function(){
+
+        },
+        success:function(result){
+            if(result=='ok'){
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:'<font color="green">权限保存成功！</font>'
+                });
+                $('#w').window('close', true);
+                $('#{$tb}').datagrid('reload');
+            }else{
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:'<font color="red">'+result+'</font>'
+                });
+            }
+        }
+    });
+
+</script>

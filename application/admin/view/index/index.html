@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="/static/css/admin.css">
+    <link href="/static/easyui/themes/super/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/easyui/themes/super/superGreen.css" id="themeCss">
+    <script type="text/javascript" src="/static/easyui/jquery.min.js"></script>
+    <!--<script language="javascript" src="/static/js/jquery-1.4.4.min.js"></script>-->
+    <script type="text/javascript" src="/static/easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script src="/static/js/public.js"></script>
+    <script src="/static/layer/layer.js"></script>
+    <script src="/static/js/echarts.min.js"></script>
+    <script src="/static/js/superDemo.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body  class="easyui-layout">
+<div data-options="region:'north',border:false" class="super-north">
+    <!--顶部-->
+    <div class="super-navigation">
+        <!--系统名称-->
+        <div class="super-navigation-title">美佳天使CRM</div>
+        <!--自定义导航-->
+        <div class="super-navigation-main">
+            <div class="super-setting-left">
+                <ul >
+                    {foreach $nav as $k=>$v }
+                    <li class="topNav" data-id="{$v.id}" onclick="navMenu('{$v.id}')">
+                        <i class="fa fa-{$v.icon}"></i>{$v.catename}
+                    </li>
+                    {/foreach}
+                </ul>
+            </div>
+            <div class="super-setting-right">
+                <ul>
+                    <li onclick="myMsg()" id="my_msg"><i class="fa fa-bell-o"></i>&nbsp;通知(<font id="msg_count" ></font>)</li>
+                    <li id="settingMenu">
+                        <div class="super-setting-icon">
+                            <i class="fa fa-gears"></i>
+                        </div>
+                        <div id="mm" class="easyui-menu" data-options="noline:true">
+                            <div onclick="chPass()" iconCls="fa fa-lock"> 修改密码</div>
+                            <div id="themeSetting" iconCls="fa fa-inbox">主题</div>
+                            <div class="menu-sep"></div>
+                            <div onclick="loginOut()" iconCls="fa fa-sign-out" id="logout">退出</div>
+                        </div>
+                    </li>
+                    <li class="user">
+                        <!--  <span class="user-icon"><img src="img/favicon.png"/></span>-->
+                        <font color="">{$userInfo.section_name}-{$userInfo.role_name}&nbsp;{$userInfo.username}</font>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="west" data-options="region:'west',title:'&nbsp导航菜单',iconCls:'fa fa-home'" class="super-west" >
+    <div id="menu" class="easyui-accordion" data-options="multiple:true"></div>
+</div>
+
+<div data-options="region:'center',border:false" style="overflow:hidden;">
+    <!--主要内容-->
+    <div id="tabs" class="easyui-tabs" style="width:100%;height:100%" data-options="border:true,fit:true">
+        <div title="首页" data-options="href:'/admin/index/tongji',iconCls:'fa fa-home'" style="padding:10px"></div>
+    </div>
+</div>
+<!--  
+<div data-options="region:'south'" class="super-south">
+    
+    <div class="super-footer-info">
+        <span><i class="fa fa-info-circle"></i> </span>
+        <span><i class="fa fa-copyright"></i> CopyRight 2017 版权所有 <i class="fa fa-caret-right"></i></span>
+    </div>
+</div>
+-->
+<!--主题设置弹窗-->
+<div id="win">
+    <div class="themeItem">
+        <ul>
+            <li>
+                <div class="superGreen" style="background: #1abc9c;">green</div>
+            </li>
+            <li class="themeActive">
+                <div class="superBlue" style="background: #3498db;">blue</div>
+            </li>
+            <li>
+                <div class="superGray" style="background: #95a5a6;">gray</div>
+            </li>
+            <li>
+                <div class="superAmethyst" style="background: #9b59b6;">amethyst</div>
+            </li>
+            <li>
+                <div class="superBlack" style="background: #34495e;">black</div>
+            </li>
+            <li>
+                <div class="superYellow" style="background: #e67e22;">yellow</div>
+            </li>
+            <li>
+                <div class="superEmerald" style="background: #2ecc71;">emerald</div>
+            </li>
+            <li>
+                <div class="superRed" style="background: #e74c3c;">red</div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+<div id="w" class="easyui-window" title="Modal Window" data-options="modal:true,closed:true,iconCls:'icon-save'" style="width:700px;height:400px;padding:10px; margin-left:auto; margin-left:auto;"></div>
+<div id="w-1" class="easyui-window" title="Modal Window" data-options="modal:true,closed:true,iconCls:'icon-save'" style="width:500px;height:300px;padding:10px;"></div>
+<div id="chgPass"  title="修改密码" style="padding:10px; ">
+    {include file="index/change_password" /}
+</div>
+<script>
+    function delHtmlTag(str) {
+        return str.replace(/<[^>]+>/g, ""); //去掉所有的html标记
+    }
+    var _menu_ids = [];
+    var ht_file_name = '{$ht_file_name}';
+    $(document).ready(function() {
+        $('#menu').accordion({
+            onSelect: function(title, index) {
+                $("ul[name='" + title + "']").tree({
+                    url: '/' + ht_file_name + '/index/menu/title/' + title,
+                    onClick: function(node) {
+                        if (node.has_child == 0) {
+                            if (node.type == 0) {
+                                addTab(node.text, '/' + ht_file_name + '/' + node.link, node.iconCls);
+                            } else {
+                                var strs = new Array(); //定义一数组
+                                strs = node.link.split("/");
+                                var winurl = '/' + ht_file_name + '/' + node.link + '/' + strs[0];
+                                addWin(winurl, node.text);
+                            }
+                        }
+                    }
+                });
+            },
+            onAdd: function(title, index) {}
+        });
+        // 主页打开初始化时显示第一个系统的菜单
+        $('.topNav').eq('0').trigger('click');
+
+    });
+
+    function navMenu(id) {
+        if ($.inArray(id, _menu_ids) < 0) {
+            $.ajax({
+                type: 'POST',
+                dataType: "json",
+                url: '/' + ht_file_name + '/index/nav/id/' + id,
+                success: function(data) {
+                    $.each(data, function(i, n) {
+                        $('#menu').accordion('add', {
+                            //title: '<i class="fa fa-'+n.icon+'" aria-hidden="true"></i> '+n.catename,
+                            title: n.catename,
+                            selected: true,
+                            iconCls: 'fa fa-'+n.icon || 'icon-floder',
+                            content: '<div class="leftMenu" data-id="' + id + '" ><ul class="my-menu" name="' + n.catename + '"></ul></div>'
+                        });
+                    });
+                }
+            });
+        }
+        _menu_ids.push(id);
+    }
+
+    function addTab(title, href, icon) {
+        var tt = $('#tabs');
+        if (tt.tabs('exists', title)) { //如果tab已经存在,则选中并刷新该tab
+            tt.tabs('select', title);
+            refreshTab({
+                tabTitle: title,
+                url: href
+            });
+        } else {
+            if (href) {
+                var content = '<iframe  scrolling="yes" frameborder="0"  src="' + href + '" style="width:100%;height:99%;"></iframe>';
+            } else {
+                var content = '未实现';
+            }
+            tt.tabs('add', {
+                title: title,
+                closable: true,
+                content: content,
+                iconCls: icon || 'fa fa-file'
+            });
+        }
+    }
+    /**
+     * 刷新tab
+     * @cfg
+     *example: {tabTitle:'tabTitle',url:'refreshUrl'}
+     *如果tabTitle为空，则默认刷新当前选中的tab
+     *如果url为空，则默认以原来的url进行reload
+     */
+    function refreshTab(cfg) {
+        var refresh_tab = cfg.tabTitle ? $('#tabs').tabs('getTab', cfg.tabTitle) : $('#tabs').tabs('getSelected');
+        if (refresh_tab && refresh_tab.find('iframe').length > 0) {
+            var _refresh_ifram = refresh_tab.find('iframe')[0];
+            var refresh_url = cfg.url ? cfg.url : _refresh_ifram.src;
+            _refresh_ifram.contentWindow.location.href = refresh_url;
+        }
+    }
+
+    function loginOut() {
+        $.ajax({
+            type: 'POST',
+            url: '/' + ht_file_name + '/index/exitlogin',
+            success: function(data, textStatus) {
+                if (data.success == true) {
+                    layer.msg('注销成功', {
+                        icon: 6
+                    }, function() {
+                        location = "/admin";
+                    });
+                } else if (data.success == false) {
+                    layer.msg('注销失败', {
+                        icon: 5
+                    });
+                }
+            },
+            dataType: "json"
+        });
+    }
+
+    function chPass() {
+        url = '/' + ht_file_name + '/index/changePassword';
+        var iWidth = 400;
+        var iHeight = 200;
+        var iTop = (window.screen.availHeight - 30 - iHeight) / 2; //获得窗口的垂直位置;
+        var iLeft = (window.screen.availWidth - 10 - iWidth) / 2; //获得窗口的水平位置;
+        //OpenWindow(url, "更改密码", iWidth, iHeight, iTop - 50, iLeft);
+        win = $('#chgPass').window({'width':iWidth,'height':iHeight,'top':iTop,'left':iLeft}).window('open')
+    }
+
+    function addWin(url, title) {
+        var iWidth = 800;
+        var iHeight = 430;
+        var iTop = (window.screen.availHeight - 30 - iHeight) / 2; //获得窗口的垂直位置;
+        var iLeft = (window.screen.availWidth - 10 - iWidth) / 2; //获得窗口的水平位置;
+        OpenWindow(url, title, iWidth, iHeight, iTop, iLeft);
+    }
+    //获取消息
+    var Msg;
+
+    function get_msg() {
+        $.post('/' + ht_file_name + '/index/getMsg', {}, function(result) {
+            var _ii = 0;
+            $.each(result, function(i, d) {
+                var button = '<a href="javascript:void(0)" onclick="readed(' + d.id + ',\'' + d.menu_id + '\',\'_msg_' + _ii + '\')" style="bottom: 10px;position: absolute;right: 10px;">不再提醒</a>';
+                Msg = $.messager.show({
+                    timeout: 1000 * 20,
+                    height: 120,
+                    title: '<font color="black">消息</font>',
+                    msg: '<font color="green">' + d.content + '</font><br/><br/>' + button,
+                    id: '_msg_' + _ii
+                });
+                _ii++;
+            });
+            $('#msg_count').html(_ii++);
+        }, 'json');
+    }
+    //标记已读
+    function readed(id, menu_id, msg_win_id) {
+        var msg_count = parseInt($('#msg_count').html());
+        if (msg_count > 0) {
+            $('#msg_count').html(msg_count - 1);
+        }
+        $.post('/' + ht_file_name + '/index/readed', {
+            id: id,
+            menu_id: menu_id
+        }, function(result) {
+            if (result.info == "ok") {
+                var data = result.data;
+                if (data != '') {
+                    addTab(data.catename, data.alink, data.icon);
+                }
+            }
+        }, 'json');
+        $('#' + msg_win_id).window('close');
+    }
+
+    function myMsg() {
+        addTab('我的消息', '/' + ht_file_name + '/msg/index', 'fa fa-bell-o');
+    }
+    $(function() {
+        //获取消息
+        get_msg();
+        setInterval("get_msg()", 1000 * 30);
+    });
+</script>
+</body>
+</html>

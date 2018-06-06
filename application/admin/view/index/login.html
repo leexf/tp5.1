@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>后台登录</title>
+    <link rel="stylesheet" href="/static/pintuer/pintuer.css">
+    <link rel="stylesheet" href="/static/css/xyz.css">
+    <link rel="stylesheet" href="/static/css/supersized.css">
+    <script src="/static/pintuer/jquery.js"></script>
+    <script src="/static/pintuer/pintuer.js"></script>
+    <script src="/static/pintuer/respond.js"></script>
+    <script src="/static/layer/layer.js"></script>
+    <link type="image/x-icon" href="/favicon.ico" rel="shortcut icon" />
+    <link href="/favicon.ico" rel="bookmark icon" />
+</head>
+
+<body >
+<div class="container" >
+    <div class="line">
+        <div class="xs6 xm4 xs3-move xm4-move">
+            <br>
+            <br>
+            <div class="padding-big-top padding-big-bottom margin-big-bottom margin-big-top hidden-l">
+            </div>
+            <form method="post"  id="xyz-admin">
+
+                <div class="panel padding">
+                    <div class="text-center">
+                        <br>
+                        <h2>
+                            <strong>欢迎使用</strong></h2>
+                    </div>
+                    <div class="padding-big">
+                        <div class="form-group">
+                            <div class="field field-icon-right">
+                                <input name="username" type="text" id="username" class="input" placeholder="登录账号" data-validate="required:请填写账号,length#>=3:账号长度不符合要求" />
+                                <span class="icon icon-user"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="field field-icon-right">
+                                <input name="password" type="password" id="password" class="input" placeholder="登录密码" data-validate="required:请填写密码,length#>=6:密码长度不符合要求" />
+                                <span class="icon icon-key"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="field">
+                                <input type="button"  value="登录后台" id="login" class="button button-block bg-main text-big" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="field text-center">
+                                <p class="text-muted text-right">
+                                    <a class="forget" id="forget" href="javascript:;"><small>忘记密码了？</small></a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right text-small text-gray">
+                            <a class="text-crimson" href="/">返回</a></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="popup-captcha"></div>
+<script src="/static/js/supersized.3.2.7.min.js"></script>
+<script src="/static/js/supersized-init.js"></script>
+
+<script src="/static/js/jiyan.js"></script>
+<script>
+    $(function(){
+        $('#forget').click(function(){
+            layer.tips('忘记就忘记吧，我也没办法~', '#forget', {tips: 2});
+        })
+    })
+</script>
+
+</body>
+</html>

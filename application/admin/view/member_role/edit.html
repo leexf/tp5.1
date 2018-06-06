@@ -1,0 +1,85 @@
+
+<style>
+    .td1{font-weight:bold;width:120px;padding:5px;text-align:right}
+    .my-tr{border-bottom:1px solid #eae7ef;width:100%;}
+</style>
+<script>
+</script>
+<div >
+    <form action="/{$Think.config.HT_FILE_NAME}/member_role/save_edit/table/member_role" method="post" id="member_role_edit" enctype="multipart/form-data">
+        <table style="border-collapse:collapse;width:100%;height:90%">
+            <input type="hidden" name="id" value="<?php echo $id;?>">
+            <tr class="my-tr">
+                <td class="td1" >
+                    角色名称：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="role_name" id="role_name" value="{$role_name}" style="width:200px"  />
+                </td>
+
+            </tr>
+            <tr class="my-tr">
+
+                <td class="td1" >
+                    所属部门：
+                </td>
+                <td style="padding:5px">
+                    <select class="easyui-combotree" id="section_id" name="section_id" style="width:200px;" panelHeight="180"
+                            data-options="url:'/{$Think.config.HT_FILE_NAME}/common/member_section_combotree',
+				    method:'get',valueField:'id',textField:'text',value:'{$section_id}'"></select>
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    角色描述：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox" data-options="multiline:true"  name="role_desc" id="role_desc" value="{$role_desc}" style="width:200px;height:80px" />
+                </td>
+            </tr>
+        </table>
+        <div  style="position:absolute;bottom:0;right:0;margin-top:300px;width:170px; height:50px; ">
+            <input class="easyui-linkbutton"   value="保存" type="submit"  style="height:30px;width:70px;float:left;margin-right:15px"/>
+            <input class="easyui-linkbutton"   value="取消"  style="height:30px;width:50px;float:left" id="quxiao" onclick="$('#w').window('close')" />
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $('#member_role_edit').form({
+        onSubmit:function(){
+            var name=$('#role_name').textbox('getValue');
+            var section_id=$('#section_id').combotree('getValue');
+            if(name==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入角色名</font>'
+                });
+                return false;
+            }
+
+            if(section_id==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请选择部门</font>'
+                });
+                return false;
+            }
+        },
+        success:function(result){
+            if(result=='ok'){
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:'<font color="green">修改成功！</font>'
+                });
+                $('#w').window('close', true);
+                $('#{$tb}').datagrid('reload');
+            }else{
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:'<font color="red">'+result+'</font>'
+                });
+            }
+        }
+    });
+
+</script>

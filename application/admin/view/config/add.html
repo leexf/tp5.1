@@ -1,0 +1,142 @@
+
+<style>
+    .td1{font-weight:bold;width:70px;padding:5px;text-align:right}
+    .my-tr{border-bottom:1px solid #eae7ef;width:100%;}
+</style>
+
+<div  >
+    <form action="/{$Think.config.HT_FILE_NAME}/config/save_add/table/config" method="post" id="config_add" >
+        <table style="border-collapse:collapse;width:100%;height:95%">
+            <tr class="my-tr">
+                <td class="td1" >
+                    配置分类：
+                </td>
+                <td style="padding:5px">
+                    <select class="easyui-combobox" name="fenlei" id="fenlei" style="width:153px;"
+                            panelHeight="100" data-options="url:'/{$Think.config.HT_FILE_NAME}/common/sysCombo/config/CONFIG_CLASS',
+                    	method:'get',valueField:'text',textField:'text'"></select>
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    配置名称：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="name" id="name"  />
+                    <span style="color:red;margin-left:10px">只能是英文且不能重复</span>
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    配置标题：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="title" id="title"  />
+                    <span style="color:red;margin-left:10px">用于后台显示的配置标题</span>
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    配置类型：
+                </td>
+                <td style="padding:5px">
+                    <select class="easyui-combobox" name="type" id="type" style="width:153px;"
+                            panelHeight="100" data-options="url:'/{$Think.config.HT_FILE_NAME}/common/sysCombo/config/CONFIG_TYPE_LIST',
+                    	method:'get',valueField:'id',textField:'text'"></select>
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    配置值：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="value" id="value" data-options="multiline:true" style="width:300px;height:70px;" />
+                    <span style="color:red;margin-left:10px">数组类型用英文,或;或|分割</span>
+                </td>
+            </tr>
+
+            <tr class="my-tr">
+                <td class="td1" >
+                    配置说明：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="remark" id="remark" data-options="multiline:true" style="width:153px;height:50px;" />
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    排序：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-numberspinner" value="0"  name="sort" id="sort"  />
+                </td>
+            </tr>
+        </table>
+        <div style="position:absolute; right:0px; bottom:0px; width:170px; height:50px; ">
+            <input class="easyui-linkbutton"   value="保存" type="submit"  style="height:30px;width:70px;float:left;margin-right:15px"/>
+            <input class="easyui-linkbutton"   value="取消"  style="height:30px;width:50px;float:left" id="quxiao" onclick="$('#w').window('close')" />
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $('#config_add').form({
+        onSubmit:function(){
+            var fenlei=$('#fenlei').combobox('getValue');
+            var name=$('#name').textbox('getValue');
+            var title=$('#title').textbox('getValue');
+            var type=$('#type').combobox('getValue');
+            var value=$('#value').textbox('getValue');
+
+            if(fenlei==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请选择配置分类</font>'
+                });
+                return false;
+            }
+            if(name==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入配置名称</font>'
+                });
+                return false;
+            }
+            if(title==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入配置标题</font>'
+                });
+                return false;
+            }
+            if(type==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请选择配置类型</font>'
+                });
+                return false;
+            }
+            if(value==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入配置值</font>'
+                });
+                return false;
+            }
+        },
+        success:function(result){
+            if(result=='ok'){
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:'<font color="green">添加成功！</font>'
+                });
+                $('#w').window('close', true);
+                $('#{$tb}').datagrid('reload');
+            }else{
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:result
+                });
+            }
+        }
+    });
+</script>

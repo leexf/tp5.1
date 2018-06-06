@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <title></title>
+    <link href="/static/easyui/themes/super/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/easyui/themes/super/superGreen.css" id="themeCss">
+    <script type="text/javascript" src="/static/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/easyui/jquery.easyui.min.js"></script>
+    <script language="javascript" src="/static/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script src="/static/js/public.js"></script>
+    <script src="/static/layer/layer.js"></script>
+    <script src="/static/js/superDemo.js" type="text/javascript" charset="utf-8"></script>
+    <style>
+        body{font-family: '微软雅黑';}
+    </style>
+</head>
+<body>
+<div id="w" class="easyui-window" title="Modal Window" data-options="modal:true,closed:true,iconCls:'icon-save'" style="width:700px;height:400px;padding:10px; margin-left:auto; margin-left:auto;">
+</div>
+<div id="w-1" class="easyui-window" title="Modal Window" data-options="modal:true,closed:true,iconCls:'icon-save'" style="width:500px;height:300px;padding:10px;">
+</div>
+<!-- 搜索工具 -->
+<div id="{$table}_table_tb" style="border: none;">
+    <form name="{$table}_search_form" id="{$table}_search_form" method="post">
+        {notempty name="toolbar"}
+            {foreach $toolbar as $k=>$v}
+               {if $k == 0}
+                    <div style='margin:10px 0 5px 0'>
+               {/if}
+                    <span style='margin:0 10px 0 20px'>{$v.title}</span>
+                    {switch $v.type}
+                        {case combobox}
+                        {case combotree}
+                        <input  class='easyui-{$v.type}' name='{$v.name}' url='{$v.url}' search_type='{$v.search_type}' valueField='id' textField='text'
+                        {defined name="v.multiple"} multiple=true {/defined}  method='get' panelWidth='{$v.panelWidth|default="133"}' />
+                        {/case}
+                        {/case}
+                        {default/}
+                            <input class='easyui-{$v.type}' name='{$v.name}' search_type='{$v.search_type}'/>
+                    {/switch}
+                {if ($k%4 == 0) and ($k>0)}
+                    </div><div style='margin:10px 0 5px 0'>
+                {/if}
+            {/foreach}
+            </div>
+        {/notempty}
+
+        <div style="margin:10px 0 5px 20px">
+            {foreach $buttons as $k=>$v}
+                <a href="javascript:void(0)" class="easyui-linkbutton" onclick="{$v.f}" iconCls="{$v.icon}">{$v.title}</a>
+            {/foreach}
+        </div>
+    </form>
+</div>
+<!-- 菜单 -->
+<div id="{$table}_right_menu" class="easyui-menu" style="width:120px;">
+    {foreach $right_menu as $k=>$v}
+        <div onclick="{$v.f}" data-options="iconCls:'{$v.icon}'" >{$v.title}</div>
+        {notempty name="v.menu_sep"}
+            <div class="menu-sep"></div>
+        {/notempty}
+    {/foreach}
+</div>
+<!-- 显示or隐藏列 -->
+<!--显示隐藏项弹出部分-->
+<div id="GetShowColumn" class="easyui-dialog" style="width: 500px; height: 350px;
+padding: 10px 20px" data-options="closed:true,buttons:'#dlg-GetShowColumn',modal:true">
+    <form id="GetShowColumn_Form" method="post" novalidate>
+        <input type="hidden" id="hideValues" />
+        <input type="hidden" id="showValues" />
+        <div class="fitem">
+            {foreach $columns as $k=>$v}
+                {if $k != 0}
+                    <input type="checkbox" name="{$v.field}" value="{$v.field}" /><label for="{$v.field}">{$v.title}</label>
+                {/if}
+            {/foreach}
+        </div>
+        <div class="fitem">
+            <a class="easyui-linkbutton"  onclick="ChooseAll()" >全选</a>
+            <a class="easyui-linkbutton"  onclick="ClearAll()" >清空</a>
+        </div>
+    </form>
+</div>
+<div id="dlg-GetShowColumn">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="fa fa-check" onclick="hideColumn('{$hide_table_list}')">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="fa fa-remove" onclick="javascript:$('#GetShowColumn').dialog('close')">取消</a>
+</div>
+
+<table id="{$table}"></table>
+<script>
+    var ht_file_name = '{$Think.config.HT_FILE_NAME}';
+    var controller = '{$controller}',
+        table_name = '{$table}',
+        table_tb = table_name + '_table_tb',
+        search_form = table_name + '_search_form',
+        search_submit = table_name + '_search_submit',
+        right_menu = table_name + '_right_menu';
+    //ContextMenu = table_name + '_ContextMenu';
+    $('#' + table_name).datagrid({
+        rownumbers:true,
+        url: '{$url}',
+        columns:[{php}echo json_encode($columns){/php}],
+        title: '{$table_title}',
+        fit:{$fit},
+        pagination:{$pagination},
+        pageSize:{$pageSize},
+        pageList:{php} echo json_encode($pageList){/php},
+        toolbar:'#' + table_tb,
+        sortName:'{$sortName}',
+        sortOrder:'{$sortOrder}',
+        onRowContextMenu:ContextMenu
+    });
+
+    function ContextMenu(e,rowIndex,rowData){
+        e.preventDefault();
+        $(this).datagrid('selectRow', rowIndex);
+        $('#' + right_menu).menu('show', {
+            left:e.pageX,
+            top:e.pageY
+        });
+        var node = $('#' + table_name).datagrid('getSelected');
+    }
+
+    //快速搜索
+    function quick_search(){
+        var sJson = form2Json(search_form);
+        $('#' + table_name).datagrid({ queryParams:sJson});   //点击搜索
+    }
+    function reset_form(){
+        $('#' + search_form).form('clear');
+    }
+
+    $(function(){
+        var colums = $('#'+table_name).datagrid('getColumnFields');
+        //alert(colums);
+        var _checked_column = '{$show_column.show_column}';
+        var checkeds = new Array();
+        if (_checked_column != null && _checked_column != "") {
+            checkeds = _checked_column.split(',');
+            for (var i = 0; i < checkeds.length; i++) {
+                $('#'+table_name).datagrid('showColumn', checkeds[i]); //显示相应的列
+            }
+            var cbx = $("#GetShowColumn_Form input[type='checkbox']");
+            for (var i = 0; i < cbx.length; i++) {
+                if($.inArray(cbx[i].name,checkeds)>=0){
+                    cbx[i].checked = true;
+                }
+            }
+        }
+
+        var _unchecked_column = '{$show_column.hide_column}';
+        var uncheckeds = new Array();
+        if (_unchecked_column != null && _unchecked_column != "") {
+            uncheckeds = _unchecked_column.split(',');
+            for (var i = 0; i < uncheckeds.length; i++) {
+                $('#'+table_name).datagrid('hideColumn', uncheckeds[i]); //显示相应的列
+            }
+        }
+    })
+    function OpenGetShowColumnDlg() {
+        $('#GetShowColumn').dialog('open').dialog('setTitle', '设置显示隐藏列');
+    }
+    function hideColumn(list) {
+        var cbx = $("#GetShowColumn_Form input[type='checkbox']"); //获取Form里面是checkbox的Object
+        var checkedValue = "";
+        var unCheckValue = "";
+        for (var i = 0; i < cbx.length; i++){
+            if(cbx[i].checked){
+                if(checkedValue.length > 0){
+                    checkedValue += "," + cbx[i].value; //获取已经checked的value
+                }else{
+                    checkedValue = cbx[i].value;
+                }
+            }
+            if(!cbx[i].checked){
+                if(unCheckValue.length > 0){
+                    unCheckValue += "," + cbx[i].value; //获取没有checked的value
+                }else{
+                    unCheckValue = cbx[i].value;
+                }
+            }
+        }
+        var checkeds = new Array();
+        if (checkedValue != null && checkedValue != "") {
+            checkeds = checkedValue.split(',');
+            for (var i = 0; i < checkeds.length; i++) {
+                $('#'+table_name).datagrid('showColumn', checkeds[i]); //显示相应的列
+            }
+        }
+        var unChecks = new Array();
+        if (unCheckValue != null && unCheckValue != "") {
+            unChecks = unCheckValue.split(',');
+            for (var i = 0; i < unChecks.length; i++) {
+                $('#'+table_name).datagrid('hideColumn', unChecks[i]); //隐藏相应的列
+            }
+        }
+        url="/"+ht_file_name+"/column/save";
+        $.post(url,{list:list,show_column:checkedValue,hide_column:unCheckValue},function(result){
+            if(result=="ok"){
+                $('#GetShowColumn').dialog('close');
+                $('#'+table_name).datagrid('reload');
+            }else{
+                $.messager.show({title: '提示',msg:'保存到数据库失败！'});
+            }
+        });
+
+    }
+    //全选
+    function ChooseAll() {
+        $("#GetShowColumn input[type='checkbox']").prop("checked",true);
+    }
+    //取消全选
+    function ClearAll() {
+        $("#GetShowColumn input[type='checkbox']").removeAttr("checked",true);
+    }
+
+    //添加
+    function add(w,h){
+        if(!w) w = 600;
+        if(!h) h = 320;
+        OpenWindow('/'+ht_file_name+'/'+controller+'/add/tb/'+table_name+'','添加',w,h);
+    }
+
+    //编辑
+    function edit(w,h){
+        if(!w) w = 600;
+        if(!h) h = 320;
+        var node = $('#'+table_name+'').datagrid('getSelected');
+        if(node){
+            OpenWindow('/'+ht_file_name+'/'+controller+'/edit/tb/'+table_name+'/id/'+node.id,'编辑',w,h);
+        }else{
+            alert('请选择要编辑的数据！');
+        }
+    }
+
+    //删除
+    function del(isTrue){
+        if(confirm('警告:您真的要删除这些吗?'))
+        {
+            var nodes = $('#'+table_name+'').treegrid('getChecked');
+            if(nodes!=""){
+                var ids='';
+                for (var i = 0; i < nodes.length; i++) {
+                    var id=nodes[i].id;
+                    ids +=id+',';
+                    //ids.push(id); //然后把单个id循环放到ids的数组中
+                }
+                ids=ids.substr(0,ids.length-1);
+                if(isTrue == 0){
+                    var url='/'+ht_file_name+'/'+controller+'/del/table/'+table_name;
+                }else{
+                    var url='/'+ht_file_name+'/'+controller+'/del/table/'+table_name+'/isTrue/'+isTrue;
+                }
+                $.post(url,{
+                    id:ids,
+                },function(result){
+                    if(result=="ok")
+                    {
+                        $('#'+table_name+'').datagrid('reload');
+                        $.messager.show({title: '删除成功!', msg: '删除成功!'});
+                    }else{
+                        $.messager.show({title: '删除失败!', msg: result});
+                    }
+                });
+            }else{
+                $.messager.show({title: '警告', msg: '请勾选要删除的行!'});
+            }
+        }
+    }
+
+    //更改状态
+    function changeStatus(status,id){
+        var msg;var err;
+        if(status == 0){
+            msg='启用成功 ';
+            err='启用失败 ';
+        }else{
+            msg='锁定成功 ';
+            err='锁定失败 ';
+        }
+        var url='/'+ht_file_name+'/'+controller+'/change_status';
+        $.post(url,{
+            id:id,
+            status:status,
+            table:table_name
+        },function(result){
+            if(result == "ok")
+            {
+                $.messager.alert('<font color="black">提示</font>','<font color="green">'+msg+'</font>');
+                $('#'+table_name+'').datagrid('reload');
+            }else{
+                $.messager.alert('<font color="black">提示</font>','<font color="red">'+err+'</font>');
+            }
+        });
+    }
+
+    function ExportExcel(filename,page,progress){
+        var colums = $('#'+table_name).datagrid('getColumnFields');
+        //conso//le.log(colums);
+        var dataindex_str='';
+        for(i=0;i<colums.length;i++){
+            if(colums[i]!=""){
+                var obj = $('#'+table_name).datagrid('getColumnOption',colums[i]);
+                dataindex_str = obj.field+'|'+obj.title+','+dataindex_str;
+            }
+        }
+        var text = '导出中，已完成 <font color="red">'+progress+'<font/>';
+        var options = $('#'+table_name).datagrid('options');
+        var datas = $('#'+table_name).datagrid('getData');
+        var queryParams = options.queryParams;
+        if(filename == 0){
+            //queryParams.excelname = options.title;
+            queryParams.excelname = 'excel';
+        }else{
+            queryParams.excelname = filename;
+        }
+        queryParams.rows = datas.total;
+        queryParams.page = page;
+        //queryParams.page = options.pageNumber;
+        queryParams.dataindex_str = dataindex_str;
+        queryParams.table = table_name;
+
+        var url = '/'+ht_file_name+'/'+controller+'/exportExcel';
+        $.messager.progress({ msg: '导出中，请稍候......', text :text});
+        $.post(url,queryParams,
+            function(result){
+                if(result.status==1){
+                    $.messager.progress('close');
+                    var res = result.data;
+                    if(res.finish == 1){
+                        var excel_file = JSON.stringify(res.file);
+                        excel_file=excel_file.replace('"','');
+                        excel_file=excel_file.replace('"','');
+                        var openUrl = '/'+ht_file_name+'/'+controller+'/download_excel/filename/'+excel_file;
+                        window.open(openUrl,"_blank");
+                    }else{
+                        ExportExcel(res.file,res.nextpage,res.progress);
+                    }
+                }else{
+                    $.messager.show({title: '提示',msg: result.msg});
+                }
+            },
+            "json"
+        )
+    }
+</script>
+{notempty name="js"}
+<script type="text/javascript" src="{$js}"></script>
+{/notempty}
+</body>
+</html>
+

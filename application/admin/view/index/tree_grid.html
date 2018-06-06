@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <title></title>
+    <link href="/static/easyui/themes/super/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/easyui/themes/super/superGreen.css" id="themeCss">
+    <script type="text/javascript" src="/static/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/easyui/jquery.easyui.min.js"></script>
+    <script language="javascript" src="/static/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script src="/static/js/public.js"></script>
+    <script src="/static/layer/layer.js"></script>
+    <script src="/static/js/superDemo.js" type="text/javascript" charset="utf-8"></script>
+    <style>
+        body{font-family: '微软雅黑';}
+    </style>
+</head>
+<body>
+<div id="w-1" class="easyui-window" title="编辑" data-options="closed:true,iconCls:'fa fa-save'" style="width:700px;height:400px;padding:10px; margin-left:auto; margin-left:auto;"></div>
+<div id="w" class="easyui-window" title="Modal Window" data-options="closed:true,iconCls:'fa fa-save'" style="width:500px;height:300px;padding:10px;"></div>
+
+<!-- 搜索工具 -->
+<div id="{$table}_table_tb" style="border: none;">
+    <form name="{$table}_search_form" id="{$table}_search_form" method="post">
+        <div style="margin:10px 0 5px 10px">
+            {foreach $buttons as $k=>$v}
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="{$v.f}" iconCls="{$v.icon}">{$v.title}</a>
+            {/foreach}
+        </div>
+    </form>
+</div>
+<!-- 菜单 -->
+<div id="{$table}_right_menu" class="easyui-menu" style="width:120px;">
+    {foreach $right_menu as $k=>$v }
+        <div onclick="{$v.f}()" data-options="iconCls:'{$v.icon}'" >{$v.title}</div>
+        {if isset($v.menu_sep)}
+            <div class="menu-sep"></div>
+        {/if}
+    {/foreach}
+</div>
+
+<table id="{$table}"></table>
+<script>
+    var ht_file_name = '{$Think.config.HT_FILE_NAME}';
+    var controller = '{$controller}',
+        table_name = '{$table}',
+        search_form = table_name + '_search_form',
+        table_tb = table_name + '_table_tb',
+        right_menu = table_name + '_right_menu';
+
+    $('#' + table_name).treegrid({
+        rownumbers:true,
+        checkOnSelect:false,
+        selectOnCheck:false,
+        idField:'{$idField}',
+        treeField:'{$treeField}',
+        url: '{$url}',
+        columns:[{php}echo json_encode($columns){/php}],
+        title: '{$table_title}',
+        fit:{$fit},
+        sortName:'{$sortName}',
+        sortOrder:'{$sortOrder}',
+        toolbar:'#' + table_tb,
+        onContextMenu:ContextMenu
+    });
+
+    function ContextMenu(e,rowIndex){
+        e.preventDefault();
+        $(this).treegrid('select', rowIndex.id);
+        $('#' + right_menu).menu('show', {
+            left:e.pageX,
+            top:e.pageY
+        });
+        var node = $('#' + table_name).treegrid('getSelected');
+    }
+
+    //快速搜索
+    function search(){
+        var sJson = form2Json(search_form);
+        $('#' + table_name).treegrid({ queryParams:sJson});   //点击搜索
+    }
+    function reset_form(){
+        $('#' + search_form).form('clear');
+    }
+
+    //添加
+    function add(){
+        OpenWindow('/'+ht_file_name+'/'+controller+'/add/tb/'+table_name+'','添加',600,320);
+    }
+
+    //编辑
+    function edit(){
+        var node = $('#'+table_name+'').treegrid('getSelected');
+        if(node){
+            OpenWindow('/'+ht_file_name+'/'+controller+'/edit/tb/'+table_name+'/id/'+node.id,'编辑',600,320);
+        }else{
+            alert('请选择要编辑的数据！');
+        }
+    }
+
+    //删除
+    function del(){
+        if(confirm('警告:您真的要删除这些吗?'))
+        {
+            var nodes = $('#'+table_name+'').treegrid('getChecked');
+            if(nodes!=""){
+                var ids='';
+                for (var i = 0; i < nodes.length; i++) {
+                    var id=nodes[i].id;
+                    ids +=id+',';
+                    //ids.push(id); //然后把单个id循环放到ids的数组中
+                }
+                ids=ids.substr(0,ids.length-1);
+                var url='/'+ht_file_name+'/'+controller+'/del/table/'+table_name;
+                $.post(url,{
+                    id:ids,
+                },function(result){
+                    if(result=="ok")
+                    {
+                        $('#'+table_name+'').treegrid('reload');
+                        $.messager.show({    // show error message
+                            title: '删除成功!',
+                            msg: '删除成功!'
+                        });
+                    }else{
+                        $.messager.show({    // show error message
+                            title: '删除失败!',
+                            msg: result
+                        });
+                    }
+                });
+            }else{
+                $.messager.show({    // show error message
+                    title: '警告',
+                    msg: '请勾选要删除的行!'
+                });
+            }
+        }
+    }
+
+    //更改状态
+    function changeStatus(status,id){
+        var msg;var err;
+        if(status == 0){
+            msg='启用成功 ';
+            err='启用失败 ';
+        }else{
+            msg='锁定成功 ';
+            err='锁定失败 ';
+        }
+        var url='/'+ht_file_name+'/'+controller+'/change_status';
+        $.post(url,{
+            id:id,
+            status:status,
+            table:table_name
+        },function(result){
+            if(result == "ok")
+            {
+                $.messager.alert('<font color="black">提示</font>','<font color="green">'+msg+'</font>');
+                $('#'+table_name+'').treegrid('reload');
+            }else{
+                $.messager.alert('<font color="black">提示</font>','<font color="red">'+err+'</font>');
+            }
+        });
+    }
+
+</script>
+{notempty name="js"}
+    <script type="text/javascript" src="{$js}"></script>
+{/notempty}
+</body>
+</html>
+
