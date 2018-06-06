@@ -43,4 +43,35 @@ class AuthRule extends Base
         ];
         return view('index/tree_grid',$data);
     }
+
+    //添加之前的处理
+    function _before_insert($post){
+        if($post['pid'] == 0){
+            $post['level'] = 0;
+        }else{
+            $level = db('auth_rule')->field('level')->where('id',$post['pid'])->find();
+            $post['level'] = $level['level']+1;
+        }
+        $is_exist_name = db('auth_rule')->where("name='".$post['name']."'")->count();
+        if($is_exist_name>0){
+            echo "该权限已经存在！";exit();
+        }
+
+        return $post;
+    }
+
+    //修改之前
+    function _before_edit($post){
+        if($post['pid'] == 0){
+            $post['level'] = 0;
+        }else{
+            $level = db('auth_rule')->field('level')->where('id',$post['pid'])->find();
+            $post['level'] = $level['level']+1;
+        }
+        $is_exist_name = db('auth_rule')->where("name='".$post['name']."' and id!=".$post['id'])->count();
+        if($is_exist_name>0){
+            echo "该权限已经存在！";exit();
+        }
+        return $post;
+    }
 }

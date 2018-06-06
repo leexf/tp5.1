@@ -140,6 +140,59 @@ class Member extends Base
         return $result;
     }
 
+    //添加之前的处理
+    function _before_insert($post){
+        $post['adddate'] = strtotime('now');
+        $post['member_make_id'] = $this->uid;
+        $post['hash']= substr(md5(time()),0,5);
+        $post['password'] = md5($post['hash'].md5(trim($post['password'])));
+        $is_exist_name = db('member')->where("username='".$post['username']."'")->count();
+        if($is_exist_name>0){
+            echo "该用户名已经存在！";exit();
+        }
+        $file = request()->file('upfile');
+        if( $file != "") {
+            $info = $file->move('uploads');
+            if ($info) {
+                $post['cover_img'] = '/uploads/' . $info->getSaveName();
+                $post['cover_img'] = str_replace('\\', '/', $post['cover_img']);
+            } else {
+                // 上传失败获取错误信息
+                echo $file->getError();
+            }
+        }
+        return $post;
+    }
+
+    //修改用户之前
+    function _before_edit($post){
+        $post['update_time'] = strtotime('now');
+        $post['member_edit_id'] = $this->uid;
+        $is_exist_name = db('member')->where("username='".$post['username']."' and id !=".$post['id'])->count();
+        if($is_exist_name>0){
+            echo "该用户名已经存在！";exit();
+        }
+        $file = request()->file('upfile');
+        if($file != ""){
+
+            $info = $file->move( 'uploads');
+            if($info){
+                //删除之前的头像
+                $arr = db('member')->where('id',$post['id'])->find();
+                $img = $arr['cover_img'];
+                if(is_file($img)){
+                    unlink($img);
+                }
+                $post['cover_img'] = '/uploads/'.$info->getSaveName();
+                $post['cover_img'] = str_replace('\\','/',$post['cover_img']);
+            }else{
+                // 上传失败获取错误信息
+                echo $file->getError();
+            }
+        }
+        return $post;
+    }
+
     public function batch_fp($uid){
         $map = " chance_user_id=$uid and chance_del=1 and is_chance_suss !=1 and lost=0";
         $chance = db('sale_chance')->where($map)->field('id_sale_chance')->select();
