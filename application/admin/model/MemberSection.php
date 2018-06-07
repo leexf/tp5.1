@@ -33,6 +33,16 @@ class MemberSection extends Model
         return $new;
     }
 
+    public function getChild($table,$pid,$level){
+        $children = db($table)->where(['pid'=>$pid,'level'=>$level])->field('id,level')->select();
+        $r = [];
+        foreach($children as $k=>$v){
+            $new = $this->getChild($table,$v['id'],$v['level']+1);
+            $r = array_merge($children,$new);
+        }
+        return $r;
+    }
+
     public function getSectionMember($map){
         $members = db('member')->where($map)->select();
         $new = array();

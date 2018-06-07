@@ -19,6 +19,7 @@ class Base extends Controller
 {
     public function initialize(){
         $this->uid = Session::get('uid');
+        $this->user = Session::get('username');
         $this->url = Request::url();
         $this->controller = uncamelize(request()->controller());
 
@@ -194,8 +195,8 @@ class Base extends Controller
             $map = $this->_map($map);
         }
         $list = Model('common')->gridTreeJson($table,$pid,$map);
-        if (method_exists($this, '_before_tree_json')) {
-            $list = $this->_before_tree_json($list);
+        if (method_exists($this, '_before_list')) {
+            $list = $this->_before_list($list);
         }
 
         return json($list);

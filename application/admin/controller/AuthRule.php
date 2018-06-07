@@ -74,4 +74,20 @@ class AuthRule extends Base
         }
         return $post;
     }
+
+    //删除之前，找出子权限，全部删除
+    public function _before_del($post){
+        $id = $post['id'];
+        $id_arr = explode(',',$id);
+        foreach($id_arr as $k=>$v){
+            $table = 'auth_rule';
+            $r = db($table)->where('id',$v)->field('level')->find();
+            $level = $r['level'];
+            $children = Model('MemberSection')->getChild($table,$v,$level+1);
+            foreach ($children as $kk=>$vv){
+                $post['id'] .= ','.$vv['id'];
+            }
+        }
+        return $post;
+    }
 }

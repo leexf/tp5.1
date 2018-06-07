@@ -50,4 +50,50 @@ class MemberSection extends Base
         }
         return $list;
     }
+
+    //添加之前的处理
+    function _before_insert($post){
+        if($post['pid'] == 0){
+            $post['level'] = 0;
+        }else{
+            $level = db('member_section')->field('level')->where('id',$post['pid'])->find();
+            $post['level'] = $level['level']+1;
+        }
+        $is_exist_name = db('member_section')->where("name='".$post['name']."'")->count();
+        if($is_exist_name>0){
+            echo "该部门已经存在！";exit();
+        }
+        return $post;
+    }
+
+    //修改之前
+    function _before_edit($post){
+        if($post['pid'] == 0){
+            $post['level'] = 0;
+        }else{
+            $level = db('member_section')->field('level')->where('id',$post['pid'])->find();
+            $post['level'] = $level['level']+1;
+        }
+        $is_exist_name = db('member_section')->where("name='".$post['name']."' and id!=".$post['id'])->count();
+        if($is_exist_name>0){
+            echo "该部门已经存在！";exit();
+        }
+        return $post;
+    }
+
+    //删除之前，找出子部门，全部删除
+    public function _before_del($post){
+        $id = $post['id'];
+        $id_arr = explode(',',$id);
+        foreach($id_arr as $k=>$v){
+            $table = 'member_section';
+            $r = db($table)->where('id',$v)->field('level')->find();
+            $level = $r['level'];
+            $children = Model('MemberSection')->getChild($table,$v,$level+1);
+            foreach ($children as $kk=>$vv){
+                $post['id'] .= ','.$vv['id'];
+            }
+        }
+        return $post;
+    }
 }

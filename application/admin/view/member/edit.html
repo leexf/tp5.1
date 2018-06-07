@@ -1,0 +1,171 @@
+<style>
+    .td1{font-weight:bold;width:120px;padding:5px;text-align:right}
+    .my-tr{border-bottom:1px solid #eae7ef;width:100%;}
+</style>
+<script>
+
+</script>
+<div  >
+    <form action="/{$Think.config.HT_FILE_NAME}/member/save_edit/table/member" method="post" id="member_edit" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="{$id}">
+        <table style="border-collapse:collapse;width:100%;height:90%">
+            <tr class="my-tr">
+                <td class="td1" >
+                    用户名：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="username" id="username" style="width:200px" value="{$username}" />
+                </td>
+                <td class="td1" >
+                    角色：
+                </td>
+                <td style="padding:5px">
+                    <select class="easyui-combobox" id="role_id" name="role_id" style="width:200px;" panelHeight="180"
+                            data-options="url:'/{$Think.config.HT_FILE_NAME}/common/member_role_combo',
+				    method:'get',valueField:'id',textField:'text',value:'{$role_id}'"></select>
+                </td>
+            </tr>
+
+            <tr class="my-tr">
+                <td class="td1" >
+                    真实姓名：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="truename" id="truename" value="{$truename}" style="width:200px;" />
+                </td>
+                <td class="td1" >
+                    所属部门：
+                </td>
+                <td style="padding:5px">
+                    <select class="easyui-combotree" id="section_id" name="section_id" style="width:200px;" panelHeight="180"
+                            data-options="url:'/{$Think.config.HT_FILE_NAME}/common/member_section_combotree',
+				    method:'get',valueField:'id',textField:'text',value:'{$section_id}'"></select>
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    手机：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="phone" id="phone" style="width:200px" value="{$phone}"  />
+                </td>
+                <td class="td1" >
+                    用户等级：
+                </td>
+                <td style="padding:5px">
+                    <select class="easyui-combobox" id="member_level" name="member_level" style="width:200px;" panelHeight="180"
+                            data-options="url:'/{$Think.config.HT_FILE_NAME}/common/sysCombo/config/member_level_name',
+				    method:'get',valueField:'id',textField:'text',value:'{$member_level}'"></select>
+                </td>
+            </tr>
+
+            <tr class="my-tr">
+                <td class="td1" >
+                    邮箱：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="email" id="email" style="width:200px" value="{$email}" />
+                </td>
+                <td class="td1" >
+                    用户地区：
+                </td>
+                <td style="padding:5px">
+                    <select class="easyui-combobox" id="member_area" name="member_area" style="width:200px;"  panelHeight="180"
+                            data-options="url:'/{$Think.config.HT_FILE_NAME}/common/sysCombo/config/member_province_name',
+				    method:'get',valueField:'id',textField:'text',value:'{$member_area}'"></select>
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    头像：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-filebox"  name="upfile" id="img"  buttonText="选择图片"  />
+                </td>
+            </tr>
+            <tr class="my-tr">
+                <td class="td1" >
+                    当前头像：
+                </td>
+                <td style="padding:5px">
+                    {empty name="cover_img"}
+                    <font color="red">还没有上传头像</font>
+                    {else /}
+                    <img alt="{$username}" src="{$cover_img}" width="50">
+                    {/empty}
+                </td>
+            </tr>
+        </table>
+        <div  style="position:absolute;bottom:0;right:0;margin-top:300px;width:170px; height:50px; ">
+            <input class="easyui-linkbutton"   value="保存" type="submit"  style="height:30px;width:70px;float:left;margin-right:15px"/>
+            <input class="easyui-linkbutton"   value="取消"  style="height:30px;width:70px;float:left" id="quxiao" onclick="$('#w').window('close')" />
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $('#member_edit').form({
+        onSubmit:function(){
+            var name=$('#username').textbox('getValue');
+            var role_id=$('#role_id').combobox('getValue');
+            var section_id=$('#section_id').combobox('getValue');
+            var member_level=$('#member_level').combobox('getValue');
+            var member_area=$('#member_area').combobox('getValue');
+
+            if(name==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入用户名</font>'
+                });
+                return false;
+            }
+
+            if(role_id==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请选择角色</font>'
+                });
+                return false;
+            }
+            if(section_id==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请选择部门</font>'
+                });
+                return false;
+            }
+            if(member_level==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请选择用户等级</font>'
+                });
+                return false;
+            }
+
+            if(member_area==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请选择用户地区</font>'
+                });
+                return false;
+            }
+
+        },
+        success:function(result){
+            if(result=='ok'){
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:'<font color="green">修改成功！</font>'
+                });
+                $('#w').window('close', true);
+                $('#{$tb}').datagrid('reload');
+            }else{
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:'<font color="red">'+result+'</font>'
+                });
+            }
+        }
+    });
+
+
+</script>

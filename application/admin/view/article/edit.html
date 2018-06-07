@@ -1,0 +1,170 @@
+
+<style>
+    .tr1{border-bottom:1px solid #eae7ef;width:100%;height:30px}
+    .td1{font-weight:bold;width:120px;padding:5px;text-align:right}
+</style>
+<script type="text/javascript" charset="utf-8" src="/static/js/wangEditor/release/wangEditor.min.js"></script>
+<script type="text/javascript" src="/static/js/jQueryFileUpload/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="/static/js/jQueryFileUpload/jquery.fileupload.js"></script>
+<script>
+    var E = window.wangEditor
+    var editor = new E('#content')
+    editor.customConfig.uploadImgMaxSize = 3 * 1024 * 1024;
+    editor.customConfig.uploadImgServer = "/{$Think.config.HT_FILE_NAME}/article/wangEditor" ; // 上传图片到服务
+    editor.create()
+    editor.txt.html('{php} echo $content;{/php}')
+
+</script>
+<div  >
+    <form action="/{$Think.config.HT_FILE_NAME}/article/save_edit/table/article" method="post" id="article_edit" >
+        <input type="hidden" name="id" value="{$id}" />
+        <input type="hidden" id="headimg" name="headimg" value="{$headimg}" />
+        <table style="border-collapse:collapse;width:100%;height:95%">
+            <tr class="tr1" id="up_headimg_tr">
+                <td class="td1" >
+                    封面图片：
+                </td>
+                <td class="td2 ">
+                    <input type="file" class="fileupload"  buttonText="选择图片" name="upfile"   />
+                </td>
+            </tr>
+            <tr class="tr1" id="headimg_tr">
+                {empty name="headimg"}
+                <td class="td1">
+                </td>
+                <td class="td2 ">
+                    <font color='red'>暂无封面</font>
+                </td>
+                {else /}
+                <td class="td1"></td>
+                <td class="td2" >
+                    <img src="{$headimg}" width="160px" />
+                </td>
+                {/empty}
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    文章类型<font color="red">*</font>：
+                </td>
+                <td style="padding:5px">
+                    <select class="easyui-combotree" name="type" id="type" style="width:153px;"
+                            panelHeight="180"  data-options="url:'/{$Think.config.HT_FILE_NAME}/common/arctype_combotree',
+                    	method:'get',valueField:'id',textField:'text',value:'{$type}'"></select>
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    文章标题<font color="red">*</font>：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="title" id="title" style="width:400px" value="{$title}" />
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    短标题：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="short_title" id="short_title" style="width:400px" value="{$short_title}" />
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    标签(关键词：用<font color='red'>英文</font>逗号隔开)：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="tag" id="tag" style="width:400px;" value="{$tag}"  />
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    排序：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-numberspinner" name="sort" id="sort" value="{$sort}" />
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    文章内容<font color="red">*</font>：
+                </td>
+                <td style="padding:5px" >
+                    <div id="content"></div>
+                    <input type="hidden" id="real_content" name="content"  />
+                </td>
+            </tr>
+        </table>
+        <div style="float:right;margin-top:10px; width:170px; height:50px; ">
+            <input class="easyui-linkbutton"   value="保存" type="submit"  style="height:30px;width:70px;float:left;margin-right:15px"/>
+            <input class="easyui-linkbutton"   value="取消"  style="height:30px;width:50px;float:left" id="quxiao" onclick="$('#w').window('close')" />
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $('#article_edit').form({
+        onSubmit:function(){
+            var type=$('#type').combotree('getValue');
+            var title=$('#title').textbox('getValue');
+            var content = editor.txt.html();
+            if(type==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请选择文章类别</font>'
+                });
+                return false;
+            }
+            if(title==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入文章标题</font>'
+                });
+                return false;
+            }
+            if(content == ''){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入文章内容</font>'
+                });
+                return false;
+            }
+            $('#real_content').val(content);
+        },
+        success:function(result){
+            if(result=='ok'){
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:'<font color="green">修改成功！</font>'
+                });
+                $('#w').window('close', true);
+                $('#{$tb}').datagrid('reload');
+            }else{
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:result
+                });
+            }
+        }
+    });
+
+    //上传头图
+    var upUrl = '/{$Think.config.HT_FILE_NAME}/article/save_headimg'
+    $('.fileupload').fileupload(
+        {'url':upUrl,dataType:'json',done:function(e,data){
+            var r=data.result;
+            if(r.info==true){
+                $('#headimg_tr').empty();
+                $('#headimg').val(r.headimg);
+                var html='<td class="td1"></td>'
+                    +'<td class="td2">'
+                    +	  '<img src="'+r.headimg+'" width="200px" />'
+                    +'</td>';
+                $('#headimg_tr').append(html).show();
+            }else{
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">上传失败</font>'
+                });
+            }
+        }
+     });
+</script>

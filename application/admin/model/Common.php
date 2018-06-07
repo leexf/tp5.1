@@ -182,7 +182,7 @@ class Common extends Model
                         'id'=>$v['id'],
                         'text'=>$v['catename']
                     );
-                }else if($table == 'member_section'){
+                }else if($table == 'member_section' || $table == 'arctype' ){
                     $new[$k]=array(
                         'id'=>$v['id'],
                         'text'=>$v['name']

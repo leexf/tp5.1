@@ -55,6 +55,21 @@ class Common extends Controller
         echo json_encode($res);
     }
 
+    public function arctype_combo(){
+        $res = Model('Common')->getTreeList(0,0,'arctype');
+        $top=array(
+            'id'=>'0',
+            'text'=>'顶级分类'
+        );
+        array_unshift($res,$top);
+        echo json_encode($res);
+    }
+
+    public function arctype_combotree(){
+        $res = Model('Common')->getTreeList(0,0,'arctype');
+        echo json_encode($res);
+    }
+
     //获取角色下拉数据(combobox用)
     public function member_role_combo(){
         $array = db('member_role')->where('status',0)->order('section_id ',' asc')->select();

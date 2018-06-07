@@ -31,13 +31,13 @@ class MemberRole extends Base
             ['field'=>'','title'=>'','width'=>0,'checkbox'=>true,],
             ['field'=>'id','title'=>'ID','width'=>50,'align'=>'center','sortable'=>'true'],
             ['field'=>'role_name','title'=>'角色名称','width'=>120],
-            ['field'=>'role_desc','title'=>'角色描述','width'=>200,'align'=>'left'],
+            ['field'=>'role_desc','title'=>'角色描述','width'=>180,'align'=>'left'],
             ['field'=>'section_name','title'=>'部门名称','width'=>100,'align'=>'center'],
             ['field'=>'role_make_date','title'=>'创建时间','width'=>130],
             ['field'=>'role_make_id','title'=>'创建者','width'=>80],
             ['field'=>'role_edit_date','title'=>'修改时间','width'=>130],
             ['field'=>'role_edit_id','title'=>'修改者','width'=>80],
-            ['field'=>'status','title'=>'状态','width'=>100,'align'=>'center'],
+            ['field'=>'status','title'=>'状态','width'=>80,'align'=>'center'],
         ];
         $right_menu = [
             ['title'=>'编辑','f'=>'edit()','icon'=>'fa fa-edit'],

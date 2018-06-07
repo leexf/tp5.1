@@ -49,14 +49,13 @@ class Member extends Base
         $columns = [
             ['field'=>'','title'=>'','width'=>0,'checkbox'=>true,],
             ['field'=>'id','title'=>'ID','width'=>50,'align'=>'center','sortable'=>'true'],
-            ['field'=>'username','title'=>'用户名','width'=>100,'align'=>'center','sortable'=>'true'],
+            ['field'=>'username','title'=>'用户名','width'=>80,'align'=>'center','sortable'=>'true'],
             ['field'=>'truename','title'=>'真实姓名','width'=>100,'align'=>'center','sortable'=>'true'],
-            ['field'=>'section_name','title'=>'用户部门','width'=>100,'align'=>'center','sortable'=>'true'],
-            ['field'=>'role_name','title'=>'用户角色','width'=>100,'align'=>'center','sortable'=>'true'],
+            ['field'=>'section_name','title'=>'用户部门','width'=>90,'align'=>'center','sortable'=>'true'],
+            ['field'=>'role_name','title'=>'用户角色','width'=>80,'align'=>'center','sortable'=>'true'],
             ['field'=>'member_level_name','title'=>'用户等级','width'=>70,'align'=>'center','sortable'=>'true'],
             ['field'=>'member_area','title'=>'用户地区','width'=>70,'align'=>'center','sortable'=>'true'],
-            ['field'=>'member_areas','title'=>'用户区域','width'=>70,'align'=>'center','sortable'=>'true'],
-            ['field'=>'loginip','title'=>'登录IP','width'=>100,'align'=>'center','sortable'=>'true'],
+            ['field'=>'loginip','title'=>'登录IP','width'=>80,'align'=>'center','sortable'=>'true'],
             ['field'=>'logintime','title'=>'登录日期','width'=>130,'align'=>'center','sortable'=>'true'],
             ['field'=>'adddate','title'=>'添加日期','width'=>130,'align'=>'center','sortable'=>'true'],
             ['field'=>'status','title'=>'用户状态','width'=>70,'align'=>'center','sortable'=>'true'],
@@ -174,7 +173,6 @@ class Member extends Base
         }
         $file = request()->file('upfile');
         if($file != ""){
-
             $info = $file->move( 'uploads');
             if($info){
                 //删除之前的头像

@@ -1,0 +1,193 @@
+<?php
+?>
+<style>
+    .td1{font-weight:bold;width:120px;padding:5px;text-align:right}
+</style>
+<script type="text/javascript" src="/static/js/jQueryFileUpload/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="/static/js/jQueryFileUpload/jquery.fileupload.js"></script>
+<div  >
+    <form action="/{$Think.config.HT_FILE_NAME}/arctype/save_edit/table/arctype" method="post" id="arctype_edit" >
+        <input type="hidden" name="id" value="{$id}">
+        <table style="border-collapse:collapse;width:100%;height:95%">
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    上级分类：
+                </td>
+                <td style="padding:5px">
+                    <select class="easyui-combotree" name="pid" id="pid" style="width:153px;"
+                            panelHeight="130" data-options="url:'/{$Think.config.HT_FILE_NAME}/common/arctype_combo',
+                    	method:'get',valueField:'id',textField:'text',value:'{$pid}',
+                    	onSelect:function(node){
+			                  var id=node.id;
+			                  var url='/{$Think.config.HT_FILE_NAME}/common/autoSort/'+id;
+				                $.ajax({
+				                    type: 'POST',
+				                    url: url,
+				                    data: {},
+				                    dataType: 'json',
+				                    success: function(data){
+				                    	$('#sort').numberspinner('setValue', data.sort);
+				                    }
+				                });
+			          }"></select>
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    分类名称：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="name" id="name" value="{$name}"  />
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    分类目录名称：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="dirname" id="dirname" value="{$dirname}"  /><font color="red">*如取grow,则网站/grow/可访问此栏目</font>
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    分类图标：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="icon"  value="{$icon}"  />
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    SEO标题：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="seo_title" style="width:400px"  value="{$seo_title}" />
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    关键词：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="keywords" data-options="multiline:true" style="width:400px;height:50px;" value="{$keywords}"  />
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    分类描述：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-textbox"  name="desc" data-options="multiline:true" style="width:400px;height:50px;" value="{$desc}" />
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #eae7ef;width:100%;">
+                <td class="td1" >
+                    排序：
+                </td>
+                <td style="padding:5px">
+                    <input  class="easyui-numberspinner"  name="sort" id="sort" value="{$sort}" />
+                </td>
+            </tr>
+            <tr class="tr1" id="up_headimg_tr">
+                <td class="td1" >
+                    封面图片：
+                </td>
+                <td class="td2 ">
+                    <input type="file" class="fileupload"  buttonText="选择图片" name="upfile"   />
+                </td>
+            </tr>
+            <tr class="tr1" id="headimg_tr">
+                {empty name="headimg"}
+                <td class="td1">
+                    <font color='red'>暂无封面</font>
+                </td>
+                <td class="td2 ">
+                </td>
+                {else /}
+                <td class="td1"></td>
+                <td class="td2" >
+                    <img src="{$headimg}" width="200px" />
+                </td>
+                {/empty}
+            </tr>
+        </table>
+        <div style="position:absolute; right:0px; bottom:0px;margin-top:300px; width:170px; height:50px; ">
+            <input class="easyui-linkbutton"   value="保存" type="submit"  style="height:30px;width:70px;float:left;margin-right:15px"/>
+            <input class="easyui-linkbutton"   value="取消"  style="height:30px;width:50px;float:left" id="quxiao" onclick="$('#w').window('close')" />
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $('#arctype_edit').form({
+        onSubmit:function(){
+            var pid=$('#pid').combotree('getValue');
+            var name=$('#name').textbox('getValue');
+            var dirname=$('#dirname').textbox('getValue');
+
+            if(pid==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请选择上级分类</font>'
+                });
+                return false;
+            }
+
+            if(name==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入分类名称</font>'
+                });
+
+                return false;
+            }
+            if(dirname==""){
+                $.messager.show({
+                    title:'<font color="red">警告</font>',
+                    msg:'<font color="black">请输入目录名称</font>'
+                });
+                return false;
+            }
+
+        },
+        success:function(result){
+            if(result=='ok'){
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:'<font color="green">编辑成功！</font>'
+                });
+                $('#w').window('close', true);
+                $('#{$tb}').treegrid('reload');
+            }else{
+                $.messager.show({
+                    title:'<font color="black">提示</font>',
+                    msg:result
+                });
+            }
+        }
+    });
+
+    //上传头图
+    var upurl='/{$Think.config.HT_FILE_NAME}/arctype/saveHeadImg';
+    $('.fileupload').fileupload(
+        {'url':upurl,dataType:'json',done:function(e,data){
+                var r=data.result;
+                if(r.info==true){
+                    $('#headimg_tr').empty();
+                    var html='<td class="td1"></td>'
+                        +'<td class="td2">'
+                        +	  '<img src="'+r.headimg+'" width="200px" />'
+                        +	  '<input type="hidden" id="headimg" name="headimg" value="'+r.headimg+'" />'
+                        +'</td>';
+                    $('#headimg_tr').append(html).show();
+                }else{
+                    $.messager.show({
+                        title:'<font color="red">警告</font>',
+                        msg:'<font color="black">上传失败</font>'
+                    });
+
+                }
+
+            }
+        });
+
+</script>

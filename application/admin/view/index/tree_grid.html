@@ -6,12 +6,14 @@
     <title></title>
     <link href="/static/easyui/themes/super/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/static/easyui/themes/super/superGreen.css" id="themeCss">
+    <link rel="stylesheet" type="text/css" href="/static/fancybox/dist/jquery.fancybox.min.css" >
     <script type="text/javascript" src="/static/easyui/jquery.min.js"></script>
     <script type="text/javascript" src="/static/easyui/jquery.easyui.min.js"></script>
     <script language="javascript" src="/static/easyui/locale/easyui-lang-zh_CN.js"></script>
     <script src="/static/js/public.js"></script>
     <script src="/static/layer/layer.js"></script>
     <script src="/static/js/superDemo.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/fancybox/dist/jquery.fancybox.min.js" type="text/javascript" charset="utf-8"></script>
     <style>
         body{font-family: '微软雅黑';}
     </style>
@@ -85,15 +87,19 @@
     }
 
     //添加
-    function add(){
-        OpenWindow('/'+ht_file_name+'/'+controller+'/add/tb/'+table_name+'','添加',600,320);
+    function add(w,h){
+        if(!w) w = 600;
+        if(!h) h = 320;
+        OpenWindow('/'+ht_file_name+'/'+controller+'/add/tb/'+table_name+'','添加',w,h);
     }
 
     //编辑
-    function edit(){
+    function edit(w,h){
+        if(!w) w = 600;
+        if(!h) h = 320;
         var node = $('#'+table_name+'').treegrid('getSelected');
         if(node){
-            OpenWindow('/'+ht_file_name+'/'+controller+'/edit/tb/'+table_name+'/id/'+node.id,'编辑',600,320);
+            OpenWindow('/'+ht_file_name+'/'+controller+'/edit/tb/'+table_name+'/id/'+node.id,'编辑',w,h);
         }else{
             alert('请选择要编辑的数据！');
         }

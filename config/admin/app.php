@@ -7,6 +7,6 @@
  */
 
 return [
-    'ADMINISTRATOR'=> ['175','122'],
+    'ADMINISTRATOR'=> ['1'],
     'HT_FILE_NAME'=>'admin'
 ];
